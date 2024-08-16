@@ -6,6 +6,8 @@ import LandingPage from './components/LandingPage';
 import VocabularyBuilder from './components/VocabularyBuilder';
 import GrammarExercises from './components/GrammarExercises';
 import ListeningPractice from './components/ListeningPractice';
+import SignUp from './components/SignUp';
+import SignIn from './components/SignIn';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
           <Route path="/vocabulary" element={<VocabularyBuilder />} />
           <Route path="/grammar" element={<GrammarExercises />} />
           <Route path="/listening" element={<ListeningPractice />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<SignIn />} />
         </Routes>
       </main>
       <Footer />
