@@ -9,7 +9,7 @@ import GrammarExercises from './components/GrammarExercises';
 import ListeningPractice from './components/ListeningPractice';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
-import GrammarRules from './components/GramarRules';
+import GrammarRules from './components/GrammarRules';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
