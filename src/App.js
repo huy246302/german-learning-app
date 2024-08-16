@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from './firebaseConfig';
 import Layout from './components/Layout';
@@ -21,7 +21,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route
+          path="/"
+          element={
+            <Layout user={user}>
+              {user ? <LandingPage /> : <Navigate to="/signin" />}
+            </Layout>
+          }
+        />
         <Route
           path="/vocabulary"
           element={
@@ -52,8 +59,30 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/signin" element={<SignIn />} />
+        <Route
+          path="/signup"
+          element={
+            !user ? (
+              <Layout user={user}>
+                <SignUp />
+              </Layout>
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/signin"
+          element={
+            !user ? (
+              <Layout user={user}>
+                <SignIn />
+              </Layout>
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
       </Routes>
     </Router>
   );
