@@ -9,6 +9,7 @@ import GrammarExercises from './components/GrammarExercises';
 import ListeningPractice from './components/ListeningPractice';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
+import GrammarRules from './components/GramarRules';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -81,6 +82,14 @@ function App() {
             ) : (
               <Navigate to="/" />
             )
+          }
+        />
+        <Route
+          path="/grammar-formulas"
+          element={
+            <Layout user={user}>
+              <GrammarRules />
+            </Layout>
           }
         />
       </Routes>

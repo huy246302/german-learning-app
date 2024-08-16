@@ -20,6 +20,7 @@ const Header = ({ user }) => {
         <ul className="flex space-x-4 items-center">
           <li><Link to="/" className="hover:underline">Home</Link></li>
           <li><Link to="/vocabulary" className="hover:underline">Vocabulary</Link></li>
+          <li><Link to="/grammar-formulas" className="hover:underline">Grammar Formulas</Link></li>
           <li><Link to="/grammar" className="hover:underline">Grammar</Link></li>
           <li><Link to="/listening" className="hover:underline">Listening</Link></li>
           {user ? (
