@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { getWords, saveWord } from '../firebaseFirestore';
+import { getWords, saveWord, updateWord, deleteWord } from '../firebaseFirestore';
 
 const VocabularyBuilder = () => {
   const [words, setWords] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showTranslation, setShowTranslation] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [wordsPerPage] = useState(5);
+  const [editMode, setEditMode] = useState(null);
   const [newWord, setNewWord] = useState('');
   const [newTranslation, setNewTranslation] = useState('');
 
@@ -31,33 +32,110 @@ const VocabularyBuilder = () => {
     }
   };
 
-  const handleNext = () => {
-    setShowTranslation(false);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
+  // Function to update a word in Firestore
+  const handleUpdateWord = async (id) => {
+    await updateWord(id, newWord, newTranslation);
+    setEditMode(null);
+    setNewWord('');
+    setNewTranslation('');
+
+    const wordsFromDb = await getWords();
+    setWords(wordsFromDb);
   };
+
+  // Function to delete a word from Firestore
+  const handleDeleteWord = async (id) => {
+    await deleteWord(id);
+
+    const wordsFromDb = await getWords();
+    setWords(wordsFromDb);
+  };
+
+  // Pagination
+  const indexOfLastWord = currentPage * wordsPerPage;
+  const indexOfFirstWord = indexOfLastWord - wordsPerPage;
+  const currentWords = words.slice(indexOfFirstWord, indexOfLastWord);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Vocabulary Builder</h2>
 
-      {words.length > 0 ? (
-        <div className="bg-white p-4 shadow rounded">
-          <p className="text-lg">{words[currentIndex]?.word}</p>
-          {showTranslation && <p className="mt-2 text-gray-500">{words[currentIndex]?.translation}</p>}
-          <button 
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={() => setShowTranslation(!showTranslation)}>
-            {showTranslation ? 'Hide Translation' : 'Show Translation'}
-          </button>
-          <button 
-            className="mt-4 ml-4 bg-green-500 text-white px-4 py-2 rounded"
-            onClick={handleNext}>
-            Next Word
-          </button>
-        </div>
+      {currentWords.length > 0 ? (
+        currentWords.map((wordObj) => (
+          <div key={wordObj.id} className="bg-white p-4 shadow rounded mb-4">
+            {editMode === wordObj.id ? (
+              <>
+                <input
+                  className="p-2 border rounded w-full"
+                  type="text"
+                  value={newWord}
+                  onChange={(e) => setNewWord(e.target.value)}
+                  placeholder="Update word"
+                />
+                <input
+                  className="mt-2 p-2 border rounded w-full"
+                  type="text"
+                  value={newTranslation}
+                  onChange={(e) => setNewTranslation(e.target.value)}
+                  placeholder="Update translation"
+                />
+                <button
+                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
+                  onClick={() => handleUpdateWord(wordObj.id)}
+                >
+                  Update
+                </button>
+                <button
+                  className="mt-4 ml-4 bg-red-500 text-white px-4 py-2 rounded"
+                  onClick={() => setEditMode(null)}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-lg">{wordObj.word}</p>
+                <p className="mt-2 text-gray-500">{wordObj.translation}</p>
+                <button
+                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+                  onClick={() => {
+                    setEditMode(wordObj.id);
+                    setNewWord(wordObj.word);
+                    setNewTranslation(wordObj.translation);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  className="mt-4 ml-4 bg-red-500 text-white px-4 py-2 rounded"
+                  onClick={() => handleDeleteWord(wordObj.id)}
+                >
+                  Delete
+                </button>
+              </>
+            )}
+          </div>
+        ))
       ) : (
         <p>No words available. Please add some words.</p>
       )}
+
+      {/* Pagination */}
+      <div className="mt-4">
+        {Array.from({ length: Math.ceil(words.length / wordsPerPage) }).map((_, index) => (
+          <button
+            key={index}
+            onClick={() => paginate(index + 1)}
+            className={`px-4 py-2 mx-1 rounded ${
+              currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300'
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
 
       <div className="mt-8">
         <h3 className="text-lg font-semibold">Add a New Word</h3>
@@ -75,9 +153,10 @@ const VocabularyBuilder = () => {
           value={newTranslation}
           onChange={(e) => setNewTranslation(e.target.value)}
         />
-        <button 
+        <button
           className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-          onClick={handleAddWord}>
+          onClick={handleAddWord}
+        >
           Add Word
         </button>
       </div>
