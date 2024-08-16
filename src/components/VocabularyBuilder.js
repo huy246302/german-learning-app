@@ -39,7 +39,7 @@ const VocabularyBuilder = () => {
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Vocabulary Builder</h2>
-      
+
       {words.length > 0 ? (
         <div className="bg-white p-4 shadow rounded">
           <p className="text-lg">{words[currentIndex]?.word}</p>
